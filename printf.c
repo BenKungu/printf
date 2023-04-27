@@ -4,73 +4,53 @@
 /**
  * print_op - function to check which specifier to print
  * @format: string being passed
- * @print_arr: array of struct ops
- * @list: list of arguments to print
- * Return: numb of char to be printed
+ * @print_arr: array 
  */
-int print_op(const char *format, fmt_t *print_arr, va_list list)
-{
-	char a;
-	int count = 0, b = 0, c = 0;
 
-	a = format[b];
-	while (a != '\0')
+int _printf(const char *format, ...) 
+{
+	va_list args;
+	va_start(args, format);
+	int count = 0;
+	while (*format) 
 	{
-		if (a == '%')
+		if (*format == '%') 
 		{
-			c = 0;
-			b++;
-			a = format[b];
-			while (print_arr[c].type != NULL &&
-			       a != *(print_arr[c].type))
-				c++;
-			if (print_arr[c].type != NULL)
-				count = count + print_arr[c].f(list);
-			else
+			format++;
+			switch (*format) 
 			{
-				if (a == '\0')
-					return (-1);
-				if (a != '%')
-					count += _putchar('%');
-				count += _putchar(a);
+				case 'c': 
+				{
+					char c = va_arg(args, int);
+					putchar(c)
+					count++;
+					break;
+				}
+				case 's': 
+				{
+                    			char *s = va_arg(args, char *);
+                    			fputs(s, stdout);
+                    			count += strlen(s);
+                    			break;
+                		}
+                		case '%': 
+				{
+                    			putchar('%');
+                    			count++;
+                    			break;
+                		}
+                		default:
+                    			fprintf(stderr, "Unknown conversion specifier: %%%c\n", *format);
+                    			return -1;
 			}
 		}
-		else
-			count += _putchar(a);
-		b++;
-		a = format[b];
+	       	else 
+		{
+			putchar(*format);
+			count++;
+        	}
+        	format++;
 	}
-	return (count);
-}
-
-/**
- * _printf - prints output according to format
- * @format: string being passed
- * Return: char to be printed
- */
-int _printf(const char *format, ...)
-{
-	va_list list;
-	int a = 0;
-
-	fmt_t ops[] = {
-		{"c", ch},
-		{"s", str},
-		{"d", _int},
-		{"b", _bin},
-		{"i", _int},
-		{"u", _ui},
-		{"o", _oct},
-		{"x", _hex_l},
-		{"X", _hex_u},
-		{"R", _rot13},
-		{NULL, NULL}
-	};
-
-	if (format == NULL)
-		return (-1);
-	va_start(list, format);
-	a = print_op(format, ops, list);
-	va_end(list);
-	return (a);
+    	va_end(args);
+    	return count;
 }
